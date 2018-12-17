@@ -403,7 +403,7 @@ class StarkConfig(object):
         query_params._mutable = True
         # 分页实例
         # request.GET.get('page')：用户选择的页码数 # total_count：数据总条数 # request.path_info：URL # query_params：用户提交的所有GET请求数据 # per_page：每页显示的数量
-        page = Pagination(request.GET.get('page'), total_count, request.path_info, query_params, per_page=7)
+        page = Pagination(request.GET.get('page'), total_count, request.path_info, query_params, per_page=45)
 
         # list_filter = self.get_list_filter() # 试试用到没，先注释了
 

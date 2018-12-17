@@ -2,6 +2,8 @@ from django.db import models
 from rbac.models import UserInfo as RbacUserInfo
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+
+
 # from rbac.models import Role
 
 class UserProfile(models.Model):
@@ -12,6 +14,7 @@ class UserProfile(models.Model):
     email = models.EmailField('邮箱')
     phone = models.CharField('座机', max_length=32)
     mobile = models.CharField('手机', max_length=32)
+
     class Meta:
         verbose_name_plural = "01用户信息表"
 
@@ -50,7 +53,7 @@ class UserGroup(models.Model):
      3       4
     """
     name = models.CharField(max_length=32, verbose_name='用户组', unique=True)
-    users = models.ManyToManyField('UserProfile',verbose_name='用户')
+    users = models.ManyToManyField('UserProfile', verbose_name='用户')
 
     class Meta:
         verbose_name_plural = "03用户组表"
@@ -138,9 +141,9 @@ class Server(models.Model):
     cpu_physical_count = models.IntegerField(verbose_name='CPU物理个数', null=True, blank=True)
     cpu_model = models.CharField(verbose_name='CPU型号', max_length=128, null=True, blank=True)
 
-    create_at = models.DateTimeField(verbose_name="创建时间",auto_now_add=True, blank=True)
+    create_at = models.DateTimeField(verbose_name="创建时间", auto_now_add=True, blank=True)
 
-    latest_date = models.DateTimeField(verbose_name="最后修改时间",null=True, blank=True)
+    latest_date = models.DateTimeField(verbose_name="最后修改时间", null=True, blank=True)
 
     class Meta:
         verbose_name_plural = "06服务器表"
@@ -157,7 +160,7 @@ class Disk(models.Model):
     model = models.CharField('磁盘型号', max_length=128)
     capacity = models.FloatField('磁盘容量GB')
     pd_type = models.CharField('磁盘类型', max_length=32)
-    server_obj = models.ForeignKey('Server', related_name='disk',verbose_name="主机名")
+    server_obj = models.ForeignKey('Server', related_name='disk', verbose_name="主机名")
 
     class Meta:
         verbose_name_plural = "07硬盘表"
@@ -175,7 +178,7 @@ class NIC(models.Model):
     netmask = models.CharField(max_length=64)
     ipaddrs = models.CharField('ip地址', max_length=256)
     up = models.BooleanField(default=False)
-    server_obj = models.ForeignKey('Server', related_name='nic',verbose_name="主机名")
+    server_obj = models.ForeignKey('Server', related_name='nic', verbose_name="主机名")
 
     class Meta:
         verbose_name_plural = "06网卡表"
@@ -195,7 +198,7 @@ class Memory(models.Model):
     sn = models.CharField('内存SN号', max_length=64, null=True, blank=True)
     speed = models.CharField('速度', max_length=16, null=True, blank=True)
 
-    server_obj = models.ForeignKey('Server', related_name='memory',verbose_name="主机名")
+    server_obj = models.ForeignKey('Server', related_name='memory', verbose_name="主机名")
 
     class Meta:
         verbose_name_plural = "08内存表"
@@ -235,13 +238,14 @@ class ErrorLog(models.Model):
     def __str__(self):
         return self.title
 
+
 class SelfConfig(models.Model):
     """
     自用配置文件
     """
-    title = models.CharField(verbose_name="配置名称",max_length=64)
-    allocation = models.TextField(verbose_name="对应配置",null=True,help_text='例如：证书key-crt-url-字典形式存放')
-    notes = models.TextField(verbose_name="备注",)
+    title = models.CharField(verbose_name="配置名称", max_length=64)
+    allocation = models.TextField(verbose_name="对应配置", null=True, help_text='例如：证书key-crt-url-字典形式存放')
+    notes = models.TextField(verbose_name="备注", )
     create_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -249,7 +253,6 @@ class SelfConfig(models.Model):
 
     def __str__(self):
         return self.title
-
 
 
 class Configcenter(models.Model):
@@ -260,32 +263,32 @@ class Configcenter(models.Model):
         (1, '发布'),
         (2, '不发布'),
     )
-    publish_id = models.IntegerField(verbose_name='是否发布',choices=publish_choices, default=2) # 是否发布
-    title = models.CharField(verbose_name="配置名",max_length=64)
-    content = models.TextField(verbose_name="配置内容",)
-    notes = models.TextField(verbose_name="备注",)
+    publish_id = models.IntegerField(verbose_name='是否发布', choices=publish_choices, default=2)  # 是否发布
+    title = models.CharField(verbose_name="配置名", max_length=64)
+    content = models.TextField(verbose_name="配置内容", )
+    notes = models.TextField(verbose_name="备注", )
 
     conftype_choices = (
         (1, '未配置'),
         (2, 'configmaps'),
         (3, 'ingresses'),
     )
-    conftype_id = models.IntegerField(verbose_name='配置文件类型',choices=conftype_choices, default=1) # 配置类型
+    conftype_id = models.IntegerField(verbose_name='配置文件类型', choices=conftype_choices, default=1)  # 配置类型
 
-    create_at = models.DateTimeField(verbose_name="创建时间",auto_now_add=True)
+    create_at = models.DateTimeField(verbose_name="创建时间", auto_now_add=True)
     latest_date = models.DateTimeField(verbose_name="修改时间", null=True, auto_now=True)
     publish_status_choices = (
         (1, '存活'),
         (2, '失效'),
     )
-    publish_status_id = models.IntegerField(verbose_name='配置文件状态',choices=publish_status_choices, default=1) # 状态
+    publish_status_id = models.IntegerField(verbose_name='配置文件状态', choices=publish_status_choices, default=1)  # 状态
 
-    change_user = models.ForeignKey('UserProfile', null=True, blank=True,verbose_name="修改人") # 修改人
+    change_user = models.ForeignKey('UserProfile', null=True, blank=True, verbose_name="修改人")  # 修改人
     environment_choices = (
         (1, '正式'),
         (2, '测试'),
     )
-    environment_id = models.IntegerField(verbose_name='当前环境',choices=environment_choices, default=1) # 配置属于哪个环境
+    environment_id = models.IntegerField(verbose_name='当前环境', choices=environment_choices, default=1)  # 配置属于哪个环境
     configrelation = models.ManyToManyField('SelfConfig', verbose_name='关联操作')
 
     class Meta:
@@ -293,6 +296,7 @@ class Configcenter(models.Model):
 
     def __str__(self):
         return self.title
+
 
 class Resourcecontroller(models.Model):
     """
@@ -302,10 +306,10 @@ class Resourcecontroller(models.Model):
         (1, '发布'),
         (2, '不发布'),
     )
-    publish_id = models.IntegerField(verbose_name='是否发布',choices=publish_choices, default=2) # 是否发布
-    title = models.CharField(verbose_name="配置名",max_length=64)
-    content = models.TextField(verbose_name="配置内容",)
-    notes = models.TextField(verbose_name="备注",)
+    publish_id = models.IntegerField(verbose_name='是否发布', choices=publish_choices, default=2)  # 是否发布
+    title = models.CharField(verbose_name="配置名", max_length=64)
+    content = models.TextField(verbose_name="配置内容", )
+    notes = models.TextField(verbose_name="备注", )
 
     conftype_choices = (
         (1, '未配置'),
@@ -313,26 +317,46 @@ class Resourcecontroller(models.Model):
         (3, 'deployments'),
         (4, 'statefulsets'),
     )
-    conftype_id = models.IntegerField(verbose_name='配置文件类型',choices=conftype_choices, default=1) # 配置类型
+    conftype_id = models.IntegerField(verbose_name='配置文件类型', choices=conftype_choices, default=1)  # 配置类型
 
-    create_at = models.DateTimeField(verbose_name="创建时间",auto_now_add=True)
+    create_at = models.DateTimeField(verbose_name="创建时间", auto_now_add=True)
     latest_date = models.DateTimeField(verbose_name="修改时间", null=True, auto_now=True)
     publish_status_choices = (
         (1, '存活'),
         (2, '失效'),
     )
-    publish_status_id = models.IntegerField(verbose_name='配置文件状态',choices=publish_status_choices, default=1) # 发布状态
-    change_user = models.ForeignKey('UserProfile', null=True, blank=True,verbose_name="修改人") # 修改人
+    publish_status_id = models.IntegerField(verbose_name='配置文件状态', choices=publish_status_choices, default=1)  # 发布状态
+    change_user = models.ForeignKey('UserProfile', null=True, blank=True, verbose_name="修改人")  # 修改人
     environment_choices = (
         (1, '正式'),
         (2, '测试'),
     )
-    environment_id = models.IntegerField(verbose_name='当前环境',choices=environment_choices, default=2) # 配置属于哪个环境
+    environment_id = models.IntegerField(verbose_name='当前环境', choices=environment_choices, default=2)  # 配置属于哪个环境
     configrelation = models.ManyToManyField('SelfConfig', verbose_name='关联操作')  # 关联自己配置文件，该配置文件，在脚本中执行时，会对哪些环境重启
-    configmaprelation = models.ManyToManyField('Configcenter', verbose_name='关联configmap')  # 与哪些configmap关联，如果configmap修改，方便关联重启
+    configmaprelation = models.ManyToManyField('Configcenter',
+                                               verbose_name='关联configmap')  # 与哪些configmap关联，如果configmap修改，方便关联重启
+
     class Meta:
         verbose_name_plural = "10控制器配置文件内容"
 
     def __str__(self):
         return self.title
+
+
+class Host(models.Model):
+    hostname = models.CharField(db_index=True, max_length=60, null=False, verbose_name='主机名')
+    i_ip = models.CharField(max_length=30, null=False, verbose_name='内网IP')
+    o_ip = models.CharField(max_length=30, null=False, verbose_name='外网IP')
+    cpu_info = models.CharField(max_length=30, verbose_name='CPU')
+    mem_info = models.CharField(max_length=30, verbose_name='内存')
+    disk_info = models.CharField(max_length=30, verbose_name='磁盘')
+    create_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    modify_time = models.DateTimeField(auto_now=True, verbose_name='修改时间')
+    host_status_choices = (
+        (0, '失效'),
+        (1, '存活'),
+    )
+    status = models.IntegerField(choices=host_status_choices, null=True, verbose_name='主机状态')
+    remarks = models.CharField(max_length=200, null=True, verbose_name='备注')
+    instanceid = models.CharField(max_length=30, null=True, verbose_name='标识')
 

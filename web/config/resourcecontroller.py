@@ -12,11 +12,9 @@
 """
 __author__ = 'admin_Fred'
 
-from web.tasks import kubernetes_configmaps
+from utils.tasks import kubernetes_configmaps
 from cmdb_server import settings
-from repository import models
-from utils.zabbix import Zabbixapi
-from utils.zabbix import Zabbixconfig
+
 # from cmdb_server.settings import log_record
 
 from stark.service.stark import site, StarkConfig, Option, get_choice_text
@@ -40,7 +38,7 @@ class Resourcecontroller_list_Config(StarkConfig):
         pk = kwargs.get('pk')
         postcontent = self.request.POST.get('content')
         publish_id = self.request.POST.get('publish_id')
-        configrelation = self.request.POST.getlist('configrelation')
+        # configrelation = self.request.POST.getlist('configrelation')
         print('publish_id',publish_id)
 
         if str(publish_id) =="不执行": # 发布执行动作---为想好怎么操作控制器，所以不执行脚本
@@ -102,6 +100,9 @@ class Resourcecontroller_list_Config(StarkConfig):
         return row.latest_date.strftime('%Y-%m-%d')
 
     def display_configrelation(self, row=None, header=False):
+        '''
+        多对多关系表展示
+        '''
         if header:
             return "更新设置"
         configrelation = row.configrelation.all()
@@ -109,6 +110,9 @@ class Resourcecontroller_list_Config(StarkConfig):
         return ','.join(class_name_list)
 
     def display_configmaprelation(self, row=None, header=False):
+        '''
+        多对多关系表展示
+        '''
         if header:
             return "关联configmap"
         configmaprelation = row.configmaprelation.all()

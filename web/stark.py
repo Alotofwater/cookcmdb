@@ -35,6 +35,7 @@ from web.config.serverrecord_list import ServerRecord_list_Config
 from web.config.selfconfig import SelfConfig_list_Config
 from web.config.configcenter import Configcenter_list_Config
 from web.config.resourcecontroller import Resourcecontroller_list_Config
+from web.config.host_list import Host_list_Config
 
 
 
@@ -53,6 +54,7 @@ site.register(models.ServerRecord, ServerRecord_list_Config) # 资产变更记�
 site.register(models.SelfConfig, SelfConfig_list_Config) # 自用配置文件
 site.register(models.Configcenter, Configcenter_list_Config) # 配置文件内容
 site.register(models.Resourcecontroller, Resourcecontroller_list_Config) # kubernetes控制器配置文件
+site.register(models.Host, Host_list_Config) # Host 主机表
 
 
 

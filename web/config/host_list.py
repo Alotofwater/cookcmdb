@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 """
 -------------------------------------------------
-   File Name：     server_list
+   File Name：     host_list
    Description :
    Author :       admin
-   date：          2018-10-24
+   date：          2018-12-17
 -------------------------------------------------
    Change Activity:
-                   2018-10-24:
+                   2018-12-17:
 -------------------------------------------------
 """
 __author__ = 'admin_Fred'
+
 from utils.tasks import kubernetes_configmaps
 from cmdb_server import settings
 
@@ -28,27 +29,27 @@ from ruamel import yaml
 # settings.log_record.addHandler(file_handle) # 两边同时记录 ，单独记录出一份
 
 
-class Configcenter_list_Config(StarkConfig):
+class Host_list_Config(StarkConfig):
     script_state_add = False  # 添加post请求时，是否触发脚本
     script_state_delete = False  # 删除delete请求时，是否触发脚本
     script_state_change = True  # 修改put请求时，是否触发脚本
 
     def hookscript_change(self, *args, **kwargs):
         pk = kwargs.get('pk')
-        postcontent = self.request.POST.get('content')
-        publish_id = self.request.POST.get('publish_id')
-        print('publish_id',publish_id)
+        status = self.request.POST.get('status')
 
-        if str(publish_id) =="1": # 发布执行动作
+
+        print('publish_id',status)
+
+        if str(status) =="1": # 发布执行动作---为想好怎么操作控制器，所以不执行脚本
             # 执行异步脚本 ,configcontentormobj=connobj
-            kubernetes_configmaps.delay(postcontent=postcontent,pk=pk)  # post请求进来数据，传给异步脚本
-            settings.log_record.debug('pk:%s publish_id:%s content:execute,async,kubernetes_configmaps' % (pk, publish_id ))
-        settings.log_record.debug('pk:%s publish_id:%s content:unexecuted,async' % (pk, publish_id))
+            # kubernetes_configmaps.delay(postcontent=postcontent,pk=pk)  # post请求进来数据，传给异步脚本
+            print('存活',status,pk)
+            settings.log_record.debug('pk:%s publish_id:%s content:execute,async,kubernetes_configmaps' % (pk, status ))
+        settings.log_record.debug('pk:%s publish_id:%s content:unexecuted,async' % (pk, status))
         # if str(publish_id) == "2": # 不发布执行动作
         #     # postcontent：提交配置内容
         #     kubernetes_configmaps.delay(postcontent=postcontent,pk=pk)  # post请求进来数据，传给异步脚本
-        url = reverse('stark:repository_resourcecontroller_changelist')
-        return '%s?configmaprelation=%s' %(url,pk)
 
     def get_list_display(self):
         '''
@@ -84,43 +85,45 @@ class Configcenter_list_Config(StarkConfig):
         return val
 
     def get_add_btn(self):
+        '''
+        添加按钮
+        :return:
+        '''
         name = "%s:%s" % (self.site.namespace, self.get_add_url_name,)
         permission_dict = self.request.session.get(settings.PERMISSION_SESSION_KEY)
         if name in permission_dict:
             return super().get_add_btn()
 
-    def display_create_at_date(self, row=None, header=False):
+    def display_create_time_date(self, row=None, header=False):
         if header:
             return '创建时间'
-        return row.create_at.strftime('%Y-%m-%d')
+        return row.create_time.strftime('%Y-%m-%d')
 
-    def display_latest_date_date(self, row=None, header=False):
+    def display_modify_time_date(self, row=None, header=False):
         if header:
             return '修改时间'
-        return row.latest_date.strftime('%Y-%m-%d')
+        return row.modify_time.strftime('%Y-%m-%d')
 
-    def display_configrelation(self, row=None, header=False):
-        if header:
-            return "更新设置"
-        configrelation = row.configrelation.all()
-        class_name_list = [ "%s" %(row.title) for row in configrelation]
-        return ','.join(class_name_list)
+
+
     # 生成表格信息
     list_display = [
-        get_choice_text('publish_id', '发布'),
-        get_choice_text('conftype_id', '配置类型'),
-        'title',
-        'content',
-        "notes",
-        'change_user',  # 修改用户
-        display_configrelation,  # 关系
-        display_create_at_date,  # 创建时间
-        display_latest_date_date,  # 修改时间
-        get_choice_text('publish_status_id', '发布状态'),
-        get_choice_text('environment_id', '正式/测试'),
+        get_choice_text('status', '状态'),
+
+        'hostname',
+        'i_ip',
+        "o_ip",
+        'cpu_info',
+        'mem_info',
+        'disk_info',
+        'remarks',
+        'instanceid',
+        display_create_time_date,  # 创建时间
+        display_modify_time_date,  # 修改时间
+
     ]
     # 搜索条件
-    search_list = ["title", ]
+    search_list = ["hostname",]
 
     # 组合搜索按钮
     # condition 额外的查询条件
@@ -132,8 +135,29 @@ class Configcenter_list_Config(StarkConfig):
     list_filter = [
         # Option(field='os_platform', is_choice=False,is_multi=False,text_func=lambda x:x.os_platform,value_func=lambda x:x.os_platform),
         # Option(field='os_version' ,is_choice=False,is_multi=False,value_func=lambda x:x.os_version ,text_func=lambda x:x.os_version),
-        Option(field='publish_status_id', is_choice=True, is_multi=False, text_func=lambda x: x[1] + "发布"),
-        Option(field='environment_id', is_choice=True, is_multi=False, text_func=lambda x: x[1] + "环境"),
+        Option(field='status', is_choice=True, is_multi=False, text_func=lambda x: x[1]),
+        # Option(field='environment_id', is_choice=True, is_multi=False, text_func=lambda x: x[1] + "环境"),
+        # Option(field='configmaprelation', is_choice=False, is_multi=True, is_show=False),  # 不显示-用来 configcenter 配置文件管理的 关联 控制器
+
     ]
 
-    action_list = [StarkConfig.multi_delete]
+    # 自定义批量执行
+    def multi_restart(self, request):
+        """
+        批量执行重启控制器
+        :param request:
+        :return:
+        """
+        id_list = request.POST.getlist('pk')  # [1,2]
+        for i in id_list:
+            rowobj = self.model_class.objects.filter(pk=i).first()
+            print(rowobj.content)
+
+    multi_restart.text = "zabbix监控删除"
+
+    # 批量执行动作按钮添加
+    action_list = [StarkConfig.multi_delete,multi_restart]
+
+
+
+

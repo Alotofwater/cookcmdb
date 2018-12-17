@@ -12,9 +12,8 @@
 """
 from __future__ import absolute_import  # 必须发生在文件的开头
 # 自己
-from utils.kubernetsapi import Kubernetesapi
-from utils.response import BaseResponse
-from cmdb_server import settings
+from utils.mkubernets.kubernetsapi import Kubernetesapi
+from utils.common.response import BaseResponse
 
 # 第三方
 from ruamel import yaml
@@ -38,15 +37,6 @@ class MyTask(celery.Task):
     def on_retry(self, exc, task_id, args, kwargs, einfo):
         print('{0!r} failed: {1!r}'.format(task_id, exc))
 
-#
-# newkubernetesapi = Kubernetesapi(host=settings.kubernets_new_ulr,cert_file=settings.kubernets_new_crt,key_file=settings.kubernets_new_key,)
-# oldkubernetesapi = Kubernetesapi(host=settings.kubernets_old_ulr,
-#                               cert_file=settings.kubernets_old_crt,
-#                               key_file=settings.kubernets_old_key,
-#                               )
-
-
-
 
 @celery.shared_task()
 def kubernetes_configmaps(postcontent,pk):
@@ -62,11 +52,6 @@ def kubernetes_configmaps(postcontent,pk):
     for i in k8sconfigobj:
         allocationjson = yaml.safe_load(stream=i.allocation)
         kubecrt.append(allocationjson)
-    # print(kubecrt)
-
-    # field_selector = field_selector_str
-
-
 
     for k8scrt in kubecrt:
         postcontentjson = yaml.safe_load(stream=postcontent)  # 转换成json数据

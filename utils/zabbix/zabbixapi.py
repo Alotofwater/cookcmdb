@@ -12,9 +12,12 @@
 __author__ = 'admin_Fred'
 """
 import requests
+import time
 from ruamel import yaml
 
+
 class Zabbixconfig(object):
+
     def __init__(self,
                  zabbixurl,
                  user,
@@ -27,10 +30,15 @@ class Zabbixconfig(object):
         self.user = user
         self.passwd = passwd
         self.idnum = idnum
-
         self.url = zabbixurl
         self.header = header if header == None else {"Content-Type": "application/json"}
         self.jsonrpc = jsonrpc
+
+        # token 获取 时间 判断 实例化的对象
+        self.tokenovertime = 120
+        self.token = None  # 无需赋值
+        self.start_time = None  # 无需赋值
+        self.end_time = None  # 无需赋值
 
     def request_info(self, data):
         try:
@@ -53,12 +61,23 @@ class Zabbixconfig(object):
             },
             "id": self.idnum,
         }
-        token = self.request_info(data)
-        print(token.get('result'))
-        return token.get('result')  # 返回 token
 
+        # print("start_time", self.start_time)
+        if not self.start_time:
+            self.start_time = time.time()
 
-    def createconfigjson(self,jsonrpc,method,params,idnum):
+        self.end_time = time.time() - self.start_time
+        # print("end_time", self.end_time)
+
+        if int(self.end_time) >= self.tokenovertime or not self.token:
+            # print("end_time_if in :::::", self.end_time)
+            self.token = self.request_info(data)
+            self.start_time = None
+
+        # print(self.token.get('result'))
+        return self.token.get('result')  # 返回 token
+
+    def createconfigjson(self, jsonrpc, method, params, idnum):
         '''
         添加 token
         :param yamlconfig: yaml
@@ -73,15 +92,59 @@ class Zabbixconfig(object):
         return configjson
 
 
-
 class Zabbixapi(Zabbixconfig):
     '''
     host 主机 api
     '''
 
-    def hostcreate(self, params,jsonrpc="2.0",method="host.create",idnum=3000):
+    def hostcreate(self, params, jsonrpc="2.0", method="host.create", idnum=3000):
         '''
         创建主机
+        :param yamlconfig:
+        :return:
+        '''
+        createjson = self.createconfigjson(
+            params=params,
+            jsonrpc=jsonrpc,
+            method=method,
+            idnum=idnum,
+        )
+        response = self.request_info(createjson)
+        return response
+
+    def hostdelete(self, params, jsonrpc="2.0", method="host.delete", idnum=3001):
+        '''
+        删除主机
+        :param : [111, 2222,] 填写主机的ID
+        :return:
+        '''
+        createjson = self.createconfigjson(
+            params=params,
+            jsonrpc=jsonrpc,
+            method=method,
+            idnum=idnum,
+        )
+        response = self.request_info(createjson)
+        return response
+
+    def hostget(self, params, jsonrpc="2.0", method="host.get", idnum=3001):
+        '''
+        查询主机
+        :param yamlconfig:
+        :return:
+        '''
+        createjson = self.createconfigjson(
+            params=params,
+            jsonrpc=jsonrpc,
+            method=method,
+            idnum=idnum,
+        )
+        response = self.request_info(createjson)
+        return response
+
+    def hostupdate(self, params, jsonrpc="2.0", method="host.update", idnum=3001):
+        '''
+        修改主机配置信息
         :param yamlconfig:
         :return:
         '''
@@ -98,7 +161,7 @@ class Zabbixapi(Zabbixconfig):
     主机群组
     '''
 
-    def grouphostget(self, params,jsonrpc="2.0",method="hostgroup.get",idnum=4000):
+    def grouphostget(self, params, jsonrpc="2.0", method="hostgroup.get", idnum=4000):
         '''
         查询主机群组
         :param yamlconfig:
@@ -117,7 +180,7 @@ class Zabbixapi(Zabbixconfig):
     模板
     '''
 
-    def templatescreenget(self, params,jsonrpc="2.0",method="templatescreen.get",idnum=4000):
+    def templatescreenget(self, params, jsonrpc="2.0", method="templatescreen.get", idnum=4000):
         '''
         查询模板
         :param yamlconfig:
@@ -134,24 +197,17 @@ class Zabbixapi(Zabbixconfig):
         return response
 
 
-
-
-
-
-#
-#
 # zabbixtoconfig = Zabbixapi(zabbixurl='http://192.168.56.11/zabbix/api_jsonrpc.php', user='Admin', passwd='qwe123a')
-#
-#
-# # 创建语句
+
+# 创建语句
 # createhost = {
-#         "host": "testserver1",
+#         "host": "testserver2",
 #         "interfaces": [
 #             {
 #                 "type": 1,
 #                 "main": 1,
 #                 "useip": 1,
-#                 "ip": "192.168.3.1",
+#                 "ip": "192.168.56.77",
 #                 "dns": "",
 #                 "port": "10050"
 #             }
@@ -172,10 +228,14 @@ class Zabbixapi(Zabbixconfig):
 #             "macaddress_b": "56768"
 #         }
 #     }
-#
+
 # cc = zabbixtoconfig.hostcreate(params=createhost)  # 获取 token
+# print(cc)
 # tt = zabbixtoconfig.grouphostget(params={})  # 获取 token
-# xx = zabbixtoconfig.templatescreenget(params={"output":["name",""],"filter": {"templateid":"10001"}})  # 获取 token
-# # print(cc)
-# print(tt)
-# print(xx)
+
+# while True:
+#     # xx = zabbixtoconfig.templatescreenget(params={"output": ["name", ""], "filter": {"templateid": "10001"}})  # 获取 token
+#     xx = zabbixtoconfig.hostget(params={"output": "extend"})
+#     print(xx)
+#     time.sleep(20)
+#     # print(tt)
