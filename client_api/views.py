@@ -25,7 +25,7 @@ def server(request):
     elif request.method == "POST":
         # 客户端提交的最新资产数据
         server_dict = json.loads(request.body.decode('utf-8'))  # 反序列化-获取client端提交数据
-        print("server_dict_view:::::",server_dict)
+        # print("server_dict_view:::::",server_dict)
         # 检查server表中是否有当前资产信息【主机名是唯一标识】
         if not server_dict['basic']['status']:  # 查看状态
             return HttpResponse('服务器状态不对')

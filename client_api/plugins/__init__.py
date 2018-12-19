@@ -20,7 +20,7 @@ class PluginManger(object):
         ret = {'code': 1, 'msg': None}
         # 获取主机名
         hostname = server_dict[self.basic_key]['data']['hostname']
-        print("hostname_init:",hostname)
+        # print("hostname_init:",hostname)
         server_obj = models.Server.objects.filter(hostname=hostname).first() # 根据主机名-查出对象
 
         # 没找到数据-代表服务器没有录入- 我们先要录入数据的主机名
