@@ -29,6 +29,7 @@ ALLOWED_HOSTS = []
 
 # celery配置
 '''
+https://blog.csdn.net/libing_thinking/article/details/78812472
 broker:消息中间件-支持redis 与 RabbitMQ 
 简单的配置，只需要设置 Redis 数据库的位置:
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
@@ -48,10 +49,11 @@ CELERY_BROKER_URL = 'amqp://mxdrabbitmq:8852651a@192.168.56.11:5672//server01'
 #: Only add pickle to this list if your broker is secured
 #: from unwanted access (see userguide/security.html)
 CELERY_BROKER_URL = 'redis://192.168.56.11:6379/5'  # 消息中间件
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_RESULT_BACKEND = 'django-db'  # 任务结束保存的位置，用的是django插件
-CELERY_TASK_SERIALIZER = 'json'
-
+CELERY_ACCEPT_CONTENT = ["json"] # 指定任务接受的内容序列化类型(序列化)，一个列表；
+CELERY_RESULT_SERIALIZER = "json" # 任务执行结果序列化方式
+CELERY_RESULT_BACKEND = "django-db"  # 任务结束保存的位置，用的是django插件
+CELERY_TASK_SERIALIZER = "json" # 任务序列化方式
+CELERY_TIMEZONE="Asia/Shanghai"
 # Application definition
 
 INSTALLED_APPS = [
@@ -101,6 +103,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'cmdb_server.wsgi.application'
 
+# Database
+# https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 DATABASES = {
     'default': {

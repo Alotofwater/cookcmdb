@@ -11,3 +11,4 @@
 -------------------------------------------------
 """
 __author__ = 'admin_Fred'
+from utils.mzabbix.zabbixapi import *
