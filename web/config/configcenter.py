@@ -37,7 +37,7 @@ class Configcenter_list_Config(StarkConfig):
         pk = kwargs.get('pk')
         postcontent = self.request.POST.get('content')
         publish_id = self.request.POST.get('publish_id')
-        print('publish_id',publish_id)
+        # print('publish_id',publish_id)
 
         if str(publish_id) =="1": # 发布执行动作
             # 执行异步脚本 ,configcontentormobj=connobj
@@ -132,7 +132,7 @@ class Configcenter_list_Config(StarkConfig):
     list_filter = [
         # Option(field='os_platform', is_choice=False,is_multi=False,text_func=lambda x:x.os_platform,value_func=lambda x:x.os_platform),
         # Option(field='os_version' ,is_choice=False,is_multi=False,value_func=lambda x:x.os_version ,text_func=lambda x:x.os_version),
-        Option(field='publish_status_id', is_choice=True, is_multi=False, text_func=lambda x: x[1] + "发布"),
+        Option(field='publish_status_id', is_choice=True, is_multi=False, text_func=lambda x: x[1]),
         Option(field='environment_id', is_choice=True, is_multi=False, text_func=lambda x: x[1] + "环境"),
     ]
 
