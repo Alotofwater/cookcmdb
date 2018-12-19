@@ -46,7 +46,7 @@ class SelfConfig_list_Config(StarkConfig):
         根据权限是否隐藏批量执行按钮
         '''
         val = super().get_action_list()
-        print(val)
+        # print(val)
         permission_dict = self.request.session.get(settings.PERMISSION_SESSION_KEY)
         del_name = "%s:%s" % (self.site.namespace, self.get_del_url_name,)
         if del_name not in permission_dict:

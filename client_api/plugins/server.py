@@ -1,7 +1,7 @@
 from repository import models
 import datetime
 import pytz
-
+from cmdb_server.settings import log_record
 class Server(object):
 
     def __init__(self, server_obj, basic_dict, board_dict):
@@ -14,7 +14,7 @@ class Server(object):
         tmp = {}
         tmp.update(self.basic_dict['data'])  # 获取系统基本数据
         tmp.update(self.board_dict['data'])  # 获取主板信息
-        print("tmp::::::::::::::", tmp)
+        log_record.debug("更新server表: %s" %(tmp))
         # 服务器数据更新
         tmp.pop('hostname') # 取出host主机名字段
         record_list = [] # 日志列表
@@ -28,7 +28,7 @@ class Server(object):
                     old_val = getattr(self.server_obj, k)  # 查询到老数据
 
                     if old_val != new_val: # 新老数据对比数据
-                        print("old_valiude", k, old_val)
+                        # print("old_valiude", k, old_val)
                         # 日志记录
                         record = "[%s]的[%s]由[%s]变更为[%s]" % (self.server_obj.hostname, k, old_val, new_val)
 
@@ -37,7 +37,7 @@ class Server(object):
                         setattr(self.server_obj, k, new_val) # 类中添加静态属性或去修改属性， 相当于 self.key = value
 
                 self.server_obj.latest_date = datetime.datetime.now(pytz.utc) # 修改时间
-                print("保存数据",self.server_obj.sn)
+                log_record.debug("更新server表事务日志: %s" % (self.server_obj.sn))
                 self.server_obj.save() # 保存数据
 
             if record_list:
@@ -45,4 +45,4 @@ class Server(object):
                 # print("recordrizhi ::因为要关联用户-现在不能写入数据库::", record_list)
                 models.ServerRecord.objects.create(server_obj=self.server_obj, content=';'.join(record_list))
         except Exception as e:
-            print(e)
+            log_record.info("更新server表报错%s" %(e))
