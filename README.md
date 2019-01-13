@@ -284,6 +284,8 @@ python语言编写大家常用django框架，如果使用go语言蓝鲸自定义
 ./web/stark.py # 注意这里必须填写正确
 
 <python>
+    
+   
     # ./web/stark.py代码     
     # 建表ORM语句
     from repository import models
@@ -291,8 +293,7 @@ python语言编写大家常用django框架，如果使用go语言蓝鲸自定义
     # 注意填写 model_class=主机表 stark_config=刚编写主机列表的Web界面生成代码
     site.register(model_class=models.Server, stark_config=Server_list_Config) # 主机Server表
     最后登陆页面添加视图的权限就好了
-     
-   
+    
     
 </python>
 
@@ -548,6 +549,8 @@ python语言编写大家常用django框架，如果使用go语言蓝鲸自定义
 ./web/stark.py # 注意这里必须填写正确
 
 <python>
+    
+    
     # ./web/stark.py 代码   
     # 建表ORM语句
     from repository import models
