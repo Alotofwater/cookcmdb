@@ -56,8 +56,8 @@ def init_permission(user, request):
                     menu_node
                 ]
             }
-    print("menu_dict",menu_dict)
-    print("permission_dict",permission_dict)
+    # print("menu_dict",menu_dict)
+    # print("permission_dict",permission_dict)
     # 将权限信息和菜单信息 放入session
     request.session[settings.MENU_SESSION_KEY] = menu_dict
     request.session[settings.PERMISSION_SESSION_KEY] = permission_dict

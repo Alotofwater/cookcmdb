@@ -13,6 +13,7 @@ def header_list(cl):
     if cl.list_display:
         for name_or_func in cl.list_display:
             if isinstance(name_or_func, FunctionType):
+                # header=True 代表是 表头部 字符串
                 verbose_name = name_or_func(cl.config, header=True) # 渲染自定义表头-自己设置的函数
             else:
                 # get_field 通过name_or_func字符串获取ORM对象，verbose_name获取冗余名

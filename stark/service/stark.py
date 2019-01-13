@@ -1,5 +1,4 @@
 import functools  # 装饰器-传入的函数显示自己本身
-from types import FunctionType  # 查看方法是不是函数类型
 from django.conf.urls import url  # django中路由规则
 from django.utils.safestring import mark_safe  # 将字符串 转义为 html
 from django.shortcuts import HttpResponse, render, redirect
@@ -7,8 +6,8 @@ from django.urls import reverse  # 反向解析
 from django import forms  # 表单生成
 from django.db.models import Q  # 复杂查询
 from django.http import QueryDict  # GET或POST请求参数-是不能修改
-from django.db.models.fields.related import ForeignKey, ManyToManyField, OneToOneField  # 判断是不是一对一，多对多类型
-
+from django.db.models.fields.related import ForeignKey, ManyToManyField  # 判断是不是一对一，多对多类型
+from stark.utils.viewsmethods.deletefieldcheck import DeleteFieldCheck
 
 
 
@@ -29,7 +28,7 @@ class ModelConfigMapping(object):
         self.prev = prev  #
 
 
-def get_choice_text(field, head):
+def get_choice_text(field,head):
     """
     获取choice对应的中文内容
     用于每个app下的stark组件，在获取choice中文属性
@@ -39,8 +38,8 @@ def get_choice_text(field, head):
     """
 
     def inner(self, row=None, header=False): # row 是在 stark/templatetags/stark.py 中渲染 表格头
-        if header:
-            return head
+        if header==True:
+            return head  # 返回 choice
         func_name = "get_%s_display" % field
         return getattr(row, func_name)()
 
@@ -235,7 +234,7 @@ class StarkConfig(object):
         """
         pk_list = request.POST.getlist('pk')
         self.model_class.objects.filter(pk__in=pk_list).delete() # 删除数据
-        # return HttpResponse('删除成功')
+        return HttpResponse('删除成功')
 
     multi_delete.text = "批量删除"  # 给函数对象添加text静态属性，用于在网页上中文显示
     order_by = []  # ORM排序-填写字段名
@@ -250,6 +249,8 @@ class StarkConfig(object):
     script_state_add = False
     script_state_delete = False
     script_state_change = False
+    # 2019年01月04 添加 删除
+    deletefieldcheckjudge = None
 
 
     def __init__(self, model_class, site, prev):
@@ -275,10 +276,12 @@ class StarkConfig(object):
         该方法可以重新编写 - 作为权限管理
         '''
         val = []
-        val.append(StarkConfig.display_checkbox)
+
+        val.append(StarkConfig.display_checkbox) # 选择
         val.extend(self.list_display)
         val.append(StarkConfig.display_edit)
         val.append(StarkConfig.display_del)
+
         return val
 
     def get_add_btn(self):
@@ -394,7 +397,7 @@ class StarkConfig(object):
         search_list, q, con = self.get_search_condition(request)
 
         # ##### 处理分页 #####
-        from stark.utils.pagination import Pagination
+        from stark.utils.viewsmethods.pagination import Pagination
         # filter 接收 查询条件 显示数据 count() 将查询出来的数据计算条数， 用于分页
         total_count = self.model_class.objects.filter(con).count()
         # 复制GET请求的数据
@@ -502,8 +505,11 @@ class StarkConfig(object):
         :param kwargs: 
         :return: 
         '''
+
         pass
 
+
+    @DeleteFieldCheck
     def delete_view(self, request, pk):
         """
         所有删除页面
@@ -526,12 +532,12 @@ class StarkConfig(object):
             ret = func(request, *args, **kwargs)
             # 被装饰的函数后的操作动作
             return ret
-
         return inner
 
     def get_urls(self):  # 添加路由关系
         # AdminSite中是生成的url(r'^stark/', include('rbac.urls', namespace='rbac'))
-        #
+
+
         urlpatterns = [
             # wrapper 是装饰器，不用语法糖@
             url(r'^list/$', self.wrapper(self.changelist_view), name=self.get_list_url_name),
@@ -720,6 +726,7 @@ class AdminSite(object):
             '''
             app_label = item.model._meta.app_label
             model_name = item.model._meta.model_name
+
             if item.prev:
                 '''
                 r'^%s/%s/%s/' % (app_label, model_name, item.prev) app名称+表名构建路由正则+细分权限名称

@@ -1,7 +1,8 @@
 from repository import models
 import datetime
 import pytz
-from cmdb_server.settings import log_record
+import logging
+logger = logging.getLogger('django_default')
 class Server(object):
 
     def __init__(self, server_obj, basic_dict, board_dict):
@@ -14,7 +15,7 @@ class Server(object):
         tmp = {}
         tmp.update(self.basic_dict['data'])  # 获取系统基本数据
         tmp.update(self.board_dict['data'])  # 获取主板信息
-        log_record.debug("更新server表: %s" %(tmp))
+        logger.debug("更新server表: %s" %(tmp))
         # 服务器数据更新
         tmp.pop('hostname') # 取出host主机名字段
         record_list = [] # 日志列表
@@ -37,7 +38,7 @@ class Server(object):
                         setattr(self.server_obj, k, new_val) # 类中添加静态属性或去修改属性， 相当于 self.key = value
 
                 self.server_obj.latest_date = datetime.datetime.now(pytz.utc) # 修改时间
-                log_record.debug("更新server表事务日志: %s" % (self.server_obj.sn))
+                logger.debug("更新server表事务日志: %s" % (self.server_obj.sn))
                 self.server_obj.save() # 保存数据
 
             if record_list:
@@ -45,4 +46,4 @@ class Server(object):
                 # print("recordrizhi ::因为要关联用户-现在不能写入数据库::", record_list)
                 models.ServerRecord.objects.create(server_obj=self.server_obj, content=';'.join(record_list))
         except Exception as e:
-            log_record.info("更新server表报错%s" %(e))
+            logger.info("更新server表报错%s" %(e))

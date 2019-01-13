@@ -18,7 +18,8 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from cmdb_server import settings
 
-
+import logging
+logger = logging.getLogger('django_default')
 
 
 class SelfConfig_list_Config(StarkConfig):
@@ -65,6 +66,7 @@ class SelfConfig_list_Config(StarkConfig):
         return row.create_at.strftime('%Y-%m-%d')
     # 生成表格信息
     list_display = [
+                    'id',
                     'title',
                     'allocation',
                     'notes',

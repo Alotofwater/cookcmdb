@@ -197,9 +197,9 @@ class Zabbixapi(Zabbixconfig):
         return response
 
 
-# zabbixtoconfig = Zabbixapi(zabbixurl='http://192.168.56.11/zabbix/api_jsonrpc.php', user='Admin', passwd='qwe123a')
-
-# 创建语句
+# zabbixtoconfig = Zabbixapi(zabbixurl='http://127.0.0.1:8865/api_jsonrpc.php', user='Admin', passwd='zabbix')
+#
+# # 创建语句
 # createhost = {
 #         "host": "testserver2",
 #         "interfaces": [
@@ -231,6 +231,29 @@ class Zabbixapi(Zabbixconfig):
 
 # cc = zabbixtoconfig.hostcreate(params=createhost)  # 获取 token
 # print(cc)
+
+
+
+
+hostgetconfig = {
+        "output": "extend",
+        "filter": {
+            "host": [
+                "testserver2",
+            ]
+        }
+    }
+
+# hostgetstr = zabbixtoconfig.hostget(params=hostgetconfig)
+# print(hostgetstr)
+#
+#
+# delete_config = [
+#         "10105",
+#     ]
+# deletestr = zabbixtoconfig.hostdelete(params=delete_config)
+# print(deletestr)
+
 # tt = zabbixtoconfig.grouphostget(params={})  # 获取 token
 
 # while True:

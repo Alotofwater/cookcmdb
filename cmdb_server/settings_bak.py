@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 import logging
-
+from cmdb_server import celery_log_conf
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -25,7 +25,7 @@ SECRET_KEY = 'sxm9af_srmi@81&#x0*4()k1h0y27*q_3do7om9q@e=()2$u4('
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1']
 
 # celery配置
 '''
@@ -54,6 +54,11 @@ CELERY_RESULT_SERIALIZER = "json" # 任务执行结果序列化方式
 CELERY_RESULT_BACKEND = "django-db"  # 任务结束保存的位置，用的是django插件
 CELERY_TASK_SERIALIZER = "json" # 任务序列化方式
 CELERY_TIMEZONE="Asia/Shanghai"
+
+
+# 日志配置
+CELERYD_HIJACK_ROOT_LOGGER = False
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -69,6 +74,8 @@ INSTALLED_APPS = [
     'stark.apps.StarkConfig',
     'rbac.apps.RbacConfig',
     'django_celery_results',
+    # 'rest_framework',
+    'mrest_api.apps.MRestApiConfig',
 ]
 
 MIDDLEWARE = [
@@ -166,12 +173,14 @@ USER_MODEL_PATH = "repository.models.AdminInfo"  # 配置用户信息表
 MENU_SESSION_KEY = "u8fkkddsasdasdsjdfkjsf"  # 按钮的key
 PERMISSION_SESSION_KEY = "u8fkkasssjdfkjsffsssfff"  # 权限key
 
+# url白名单设置
 PERMISSION_VALID_URL = [
     '/login/',
     '/logout/',
     '/admin/.*',
     # '/rbac/.*',
     '/api/server',
+    '/restapi/.*',
 ]
 
 # ################## 默认文件上传配置 ########################
@@ -217,25 +226,13 @@ FILE_UPLOAD_PERMISSIONS = None
 FILE_UPLOAD_DIRECTORY_PERMISSIONS = None
 
 
+# 阿里云证书
+access_key_id = ''
+access_key_secret = ''
+
+# cmdb资产管理的账号验证 
+cmdbusername = 'zhangbuhua'
+cmdbpasswd = '123'
+collecturl = 'http://127.0.0.1:8600'
 
 
-
-# log 日志配置
-
-if not os.path.isdir('%s%s%s%s' %(BASE_DIR,os.sep,'logs',os.sep)):
-    os.makedirs('%s%s%s%s' %(BASE_DIR,os.sep,'logs',os.sep))
-
-loglevel = logging.DEBUG
-logname = 'server'
-log_record = logging.getLogger()  # 实例化一个logger对象
-file_handle = logging.FileHandler('%s%s%s%s%s' %(BASE_DIR,os.sep,'logs',os.sep, '{logname}server.log'.format(logname=logname)),encoding='utf-8')  # 创建文件句柄,可以指定字符集
-show = logging.StreamHandler()  # 屏幕上输出
-# logformat = '%(asctime)s - %(name)s - %(levelname)s - %(message)s - %(process)d '
-logformat = '%(asctime)s - %(name)s - %(levelname)s - %(filename)s - %(module)s - %(funcName)s  - %(lineno)d - %(message)s - %(process)d '
-journal_format = logging.Formatter(logformat) #日志格式
-file_handle.setFormatter(journal_format)  # 文件句柄，绑定日志格式
-show.setFormatter(journal_format)  # 屏幕输出，绑定日志格式
-log_record.addHandler(file_handle)  # log_record对象绑定文件句柄
-# log_record.addHandler(show)  # log_record对象绑定屏幕输出
-log_record.setLevel(loglevel)  # 定义日志整体日志级别
-# show.setLevel(logging.WARNING)  #局部定义日志级别，show屏幕输出只有WARNING级别以上

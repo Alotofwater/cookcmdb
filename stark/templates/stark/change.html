@@ -28,7 +28,8 @@
             {% csrf_token %}
             {% for filed in form %}
                 <div class="form-group">
-                    <label>{{ filed.label }}</label>
+                    <div><label>{{ filed.label }}</label></div>
+                    {{ filed.help_text }}
                     {{ filed }}
                     {{ filed.errors.0 }}
                 </div>

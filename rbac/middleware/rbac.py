@@ -61,7 +61,7 @@ class RbacMiddleware(MiddlewareMixin):
                 pid_url = item['pid_url']
                 if pid:
                     request.current_permission_pid = item['pid']
-                    print("request.current_permission_pid",request.current_permission_pid)
+                    # print("request.current_permission_pid",request.current_permission_pid)
                     request.current_breadcrumb_list.extend([
                         {'title': permission_dict[pid_name]['title'], 'url': pid_url},
                         {'title': item['title'], 'url': url, 'class': 'active'}

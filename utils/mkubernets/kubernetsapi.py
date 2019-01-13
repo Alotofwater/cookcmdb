@@ -21,8 +21,8 @@ class Kubernetesconfig(object):
         self.configuration = client.Configuration()  # 为了修改证书配置-如果当前用户的.kube/config证书不对或者权限不够，可以自定义
         self.configuration.host = host  # 连接地址
         self.configuration.verify_ssl = verify_ssl
-        self.configuration.cert_file = cert_file  # 配置证书
-        self.configuration.key_file = key_file  # 配置证书
+        self.configuration.cert_file = cert_file  # 配置证书path
+        self.configuration.key_file = key_file  # 配置证书path
         self.configuration.assert_hostname = False
 
 
@@ -73,6 +73,73 @@ class Kubernetesapi(Kubernetesconfig):
             return api_response
         except ApiException as e:
             return "Exception when calling CoreV1Api->connect_patch_node_proxy_with_path: %s\n" % e
+
+    '''
+    
+    daemonsets 控制器 操作
+    
+    '''
+
+    def mcreate_namespaced_daemon_set(self, name, body, namespace='default', **kwargs):
+        '''
+        创建 daemon_set
+        :param metadata_name:  ALL 所有的 daemon_set，如果需要单独的deployment需要指定deployment的名称
+        :param namespace: kubernetes的命名空间
+        :return: 返回的是object，里面封装的所有信息
+        '''
+        try:
+            AppsV1Api = client.AppsV1Api(client.ApiClient(self.configuration))
+            api_response = AppsV1Api.create_namespaced_daemon_set(name=name, body=body, namespace=namespace, **kwargs)
+            return api_response
+        except ApiException as e:
+            return "[ Exception when calling AppsV1Api->create_namespaced_daemon_set: %s\n ]" % e
+
+
+
+    def mlist_namespaced_daemon_set(self, namespace='default', **kwargs):
+        '''
+        查询 daemon_set
+        :param metadata_name:  ALL 所有的deployment，如果需要单独的deployment需要指定deployment的名称
+        :param namespace: kubernetes的命名空间
+        :return: 返回的是object，里面封装的所有信息
+        '''
+        try:
+            AppsV1Api = client.AppsV1Api(client.ApiClient(self.configuration))
+            api_response = AppsV1Api.list_namespaced_daemon_set(namespace=namespace, **kwargs)
+            return api_response
+        except ApiException as e:
+            return "[ Exception when calling AppsV1Api->list_namespaced_daemon_set: %s\n ]" % e
+
+    def mpatch_namespaced_daemon_set(self, name, body, namespace='default', **kwargs):
+        '''
+        修改 daemon_set
+        :param metadata_name:  ALL 所有的deployment，如果需要单独的deployment需要指定deployment的名称
+        :param namespace: kubernetes的命名空间
+        :return: 返回的是object，里面封装的所有信息
+        '''
+        try:
+            AppsV1Api = client.AppsV1Api(client.ApiClient(self.configuration))
+            api_response = AppsV1Api.patch_namespaced_daemon_set(name=name, body=body, namespace=namespace, **kwargs)
+            return api_response
+        except ApiException as e:
+            return "[ Exception when calling AppsV1Api->patch_namespaced_daemon_set: %s\n ]" % e
+
+
+    def mdelete_namespaced_daemon_set(self, name, body, namespace='default', **kwargs):
+        '''
+        删除 daemon_set
+        :param metadata_name:  ALL 所有的 daemon_set，如果需要单独的deployment需要指定deployment的名称
+        :param namespace: kubernetes的命名空间
+        :return: 返回的是object，里面封装的所有信息
+        '''
+        try:
+            AppsV1Api = client.AppsV1Api(client.ApiClient(self.configuration))
+            api_response = AppsV1Api.delete_namespaced_daemon_set(name=name, body=body, namespace=namespace, **kwargs)
+            return api_response
+        except ApiException as e:
+            return "[ Exception when calling AppsV1Api->delete_namespaced_daemon_set: %s\n ]" % e
+
+
 
     '''
 
@@ -222,6 +289,47 @@ class Kubernetesapi(Kubernetesconfig):
         except ApiException as e:
             return "[ Exception when calling ExtensionsV1beta1Api->list_namespaced_ingress: %s\n ]" % e
 
+    def mcreate_namespaced_ingress(self, namespace, body, **kwargs):
+        '''
+        创建ingress
+        :param namespace: kubernetes 的命名空间
+        :return: 返回的是 object，里面封装的所有信息
+        '''
+        try:
+            ExtensionsV1beta1Api = client.ExtensionsV1beta1Api(client.ApiClient(self.configuration))
+            api_response = ExtensionsV1beta1Api.create_namespaced_ingress(namespace=namespace, body=body, **kwargs)
+            return api_response
+        except ApiException as e:
+            return "[ Exception when calling ExtensionsV1beta1Api->list_namespaced_ingress: %s\n ]" % e
+
+    def mdelete_namespaced_ingress(self, name, namespace, body, **kwargs):
+        '''
+        删除指定ingress
+        :param namespace: kubernetes 的命名空间
+        :return: 返回的是 object，里面封装的所有信息
+        '''
+        try:
+            ExtensionsV1beta1Api = client.ExtensionsV1beta1Api(client.ApiClient(self.configuration))
+            api_response = ExtensionsV1beta1Api.delete_namespaced_ingress(name=name, namespace=namespace,
+                                                                          body=body, **kwargs)
+            return api_response
+        except ApiException as e:
+            return "[ Exception when calling ExtensionsV1beta1Api->list_namespaced_ingress: %s\n ]" % e
+
+    def mpatch_namespaced_ingress(self, name, namespace, body, **kwargs):
+        '''
+        修改指定ingress
+        :param namespace: kubernetes 的命名空间
+        :return: 返回的是 object，里面封装的所有信息
+        '''
+        try:
+            ExtensionsV1beta1Api = client.ExtensionsV1beta1Api(client.ApiClient(self.configuration))
+            api_response = ExtensionsV1beta1Api.patch_namespaced_ingress(name=name, namespace=namespace,
+                                                                         body=body, **kwargs)
+            return api_response
+        except ApiException as e:
+            return "[ Exception when calling ExtensionsV1beta1Api->list_namespaced_ingress: %s\n ]" % e
+
     '''
     service
     '''
@@ -294,5 +402,3 @@ class Kubernetesapi(Kubernetesconfig):
             return api_response
         except ApiException as e:
             return "[ Exception when calling CoreV1Api->create_namespaced_config_map: %s\n ]" % e
-
-
