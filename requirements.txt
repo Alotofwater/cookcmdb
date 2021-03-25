@@ -30,7 +30,7 @@ PyJWT==1.7.1
 PyMySQL==0.9.3
 python-dateutil==2.7.5
 pytz==2018.7
-PyYAML==3.13
+PyYAML==5.4
 redis==2.10.6
 requests==2.21.0
 requests-oauthlib==1.0.0
